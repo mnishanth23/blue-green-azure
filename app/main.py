@@ -22,7 +22,9 @@ pool = ConnectionPool(
 async def lifespan(app: FastAPI):
     pool.open()
     # Temporary: schema lives in the app until Phase 9 moves it to proper migrations
-    with pool.connection() as conn:
+    with pool.connection() as conn, conn.transaction():
+        # Serialize schema setup across replicas starting at the same time
+        conn.execute("SELECT pg_advisory_xact_lock(424242)")
         conn.execute(
             """CREATE TABLE IF NOT EXISTS items (
                    id SERIAL PRIMARY KEY,
