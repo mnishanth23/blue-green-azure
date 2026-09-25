@@ -9,7 +9,13 @@ DATABASE_URL = os.environ["DATABASE_URL"]
 APP_VERSION = os.getenv("APP_VERSION", "dev")
 APP_COLOR = os.getenv("APP_COLOR", "blue")
 
-pool = ConnectionPool(DATABASE_URL, min_size=1, max_size=5, open=False)
+pool = ConnectionPool(
+    DATABASE_URL,
+    min_size=1,
+    max_size=5,
+    open=False,
+    check=ConnectionPool.check_connection,  # drop dead connections before use
+)
 
 
 @asynccontextmanager
