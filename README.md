@@ -2,7 +2,7 @@
 
 Zero-downtime blue-green releases on Azure Kubernetes Service, built from scratch on a free Azure account. Infrastructure is provisioned with Terraform, and traffic cutover is handled by Argo Rollouts.
 
-> **Status:** work in progress. Infrastructure and a manual blue-green cutover are working. A custom app, load-test evidence, automated analysis and CI/CD are next (see [Roadmap](#roadmap)).
+> **Status:** work in progress. Infrastructure, the custom API and blue-green releases are working, with a zero-error cutover recorded in [`docs/evidence/`](docs/evidence/). Expand/contract migrations, automated analysis, Front Door and CI/CD are next (see [Roadmap](#roadmap)).
 
 ## Architecture
 
@@ -116,8 +116,9 @@ The nodes are almost the entire cost. Keeping the Basic ACR between sessions cos
 - [x] Terraform workflow (init → plan → apply → destroy) with local state
 - [x] AKS + ACR with AcrPull role assignment
 - [x] Argo Rollouts installed; manual blue-green cutover and abort verified on the demo image
-- [ ] Custom API (`/health`, `/version`, Postgres-backed route) built and pushed to ACR
-- [ ] Load test during promotion, with the status-code log committed as zero-downtime evidence
+- [x] Custom API (`/health`, `/version`, Postgres-backed route) built and pushed to ACR
+- [x] Custom API released through a blue-green Rollout (v1.1 → v2 → v3)
+- [x] Load test during promotion, with the status-code log committed as zero-downtime evidence
 - [ ] Database changes using the expand/contract pattern
 - [ ] Prometheus-backed `AnalysisTemplate` for automatic promotion and rollback
 - [ ] Azure Front Door in front of the cluster
