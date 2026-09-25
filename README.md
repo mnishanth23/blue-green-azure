@@ -118,6 +118,7 @@ The nodes are almost the entire cost. Keeping the Basic ACR between sessions cos
 - [x] Argo Rollouts installed; manual blue-green cutover and abort verified on the demo image
 - [x] Custom API (`/health`, `/version`, Postgres-backed route) built and pushed to ACR
 - [x] Custom API released through a blue-green Rollout (v1.1 → v2 → v3)
+- [x] Custom API released through a blue-green Rollout (v1.1 → v2 → v3)
 - [x] Load test during promotion, with the status-code log committed as zero-downtime evidence
 - [ ] Database changes using the expand/contract pattern
 - [ ] Prometheus-backed `AnalysisTemplate` for automatic promotion and rollback
