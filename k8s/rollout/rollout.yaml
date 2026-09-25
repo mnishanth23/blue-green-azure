@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bluegreen-api-active
+spec:
+  type: LoadBalancer
+  selector:
+    app: bluegreen-api
+  ports:
+    - port: 80
+      targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bluegreen-api-preview
+spec:
+  selector:
+    app: bluegreen-api
+  ports:
+    - port: 80
+      targetPort: 8000
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: bluegreen-api
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: bluegreen-api
+  template:
+    metadata:
+      labels:
+        app: bluegreen-api
+    spec:
+      terminationGracePeriodSeconds: 30
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: bluegreen-api
+          matchLabelKeys:
+            - rollouts-pod-template-hash   # spread each color on its own
+      containers:
+        - name: api
+          image: acrbluegreenutrsvz.azurecr.io/bluegreen-api:v3
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pg-credentials
+                  key: DATABASE_URL
+            - name: APP_VERSION
+              value: v3
+            - name: APP_COLOR
+              value: blue
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "10"]   # let the LB drain before shutdown
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            periodSeconds: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 96Mi
+            limits:
+              memory: 256Mi
+  strategy:
+    blueGreen:
+      activeService: bluegreen-api-active
+      previewService: bluegreen-api-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 30

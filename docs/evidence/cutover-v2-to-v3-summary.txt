@@ -1,0 +1,9 @@
+Blue-green cutover v2 (green) -> v3 (blue), probe every 100ms against the active LoadBalancer
+Total requests: 567
+By status:
+    567 200
+By version:
+    343 "version":"v2"
+    224 "version":"v3"
+First v3 response:
+344:11:57:13.778 {"version":"v3","color":"blue"} 200
